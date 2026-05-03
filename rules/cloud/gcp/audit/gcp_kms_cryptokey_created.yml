@@ -1,0 +1,35 @@
+title: Google Cloud KMS CryptoKey Created
+id: b8922a33-2e9c-4fcc-9c3c-8ab0000a7778
+related:
+  - id: 59e18a32-1d8c-4fcc-9b2c-8ab9990a6667
+    type: derived
+status: experimental
+description: |
+    Detects the creation of a new Cloud KMS CryptoKey within a Google Cloud project.
+    While often a legitimate administrative task, monitoring the creation of encryption keys is essential for maintaining an accurate asset inventory and detecting unauthorized infrastructure preparation.
+    Adversaries may create new keys to stage their own cryptographic infrastructure for data encryption/decryption during an attack or to facilitate persistence via authorized service accounts.
+references:
+    - https://docs.cloud.google.com/kms/docs/create-key
+    - https://docs.cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/create
+    - https://attack.mitre.org/matrices/enterprise/cloud/iaas/
+    - https://attack.mitre.org/techniques/T1098
+    - https://attack.mitre.org/techniques/T1098/001/
+author: Fernando Alencar @fernandoshadowbr
+date: 2026-05-03
+tags:
+    - attack.persistence
+    - attack.t1098
+    - attack.t1098.001
+logsource:
+    product: gcp
+    service: gcp.audit
+detection:
+    selection_method:
+        gcp.audit.method_name: 'CreateCryptoKey'
+    selection_resource:
+        resource.type: 'cloudkms_cryptokey'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate provisioning of encryption keys for new application workloads or storage buckets.
+    - Infrastructure as Code (IaC) automation, like Terraform, during environment or project setup.
+level: medium
