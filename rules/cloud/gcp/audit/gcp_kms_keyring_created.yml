@@ -1,0 +1,34 @@
+title: Google Cloud KMS KeyRing Created
+id: 59e18a32-1d8c-4fcc-9b2c-8ab9990a6667
+status: experimental
+description: |
+    Detects the creation of a new Cloud KMS KeyRing in a Google Cloud project.
+    While frequently a legitimate administrative action, monitoring KeyRing creation is vital for asset inventory and the detection of unauthorized infrastructure preparation (Shadow IT).
+    Adversaries may create new KeyRings to stage their own cryptographic keys for data encryption/decryption during an attack or to establish persistence.
+references:
+    - https://docs.cloud.google.com/kms/docs/create-key-ring
+    - https://docs.cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings/create
+    - https://attack.mitre.org/matrices/enterprise/cloud/iaas/
+    - https://attack.mitre.org/techniques/T1098
+    - https://attack.mitre.org/techniques/T1098/001/
+    - https://services.google.com/fh/files/misc/cloud_threat_horizons_report_h22025.pdf
+    - https://industrialcyber.co/reports/google-cloud-warns-cloud-misconfigurations-and-identity-security-gaps-pose-growing-risks-to-critical-infrastructure-systems/
+author: Fernando Alencar @fernandoshadowbr
+date: 2026-05-03
+tags:
+    - attack.persistence
+    - attack.t1098
+    - attack.t1098.001
+logsource:
+    product: gcp
+    service: gcp.audit
+detection:
+    selection_method:
+        gcp.audit.method_name: 'CreateKeyRing'
+    selection_resource:
+        resource.type: 'cloudkms_keyring'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate deployment of new applications requiring encryption.
+    - Infrastructure as Code (IaC) automation, like Terraform, during environment or project setup.
+level: medium
