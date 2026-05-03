@@ -1,0 +1,35 @@
+title: Google Cloud KMS CryptoKey Publicly Accessible
+id: c71a33b2-2d9c-4ecc-9b2c-7ab8880a5556
+status: experimental
+description: |
+    Detects the modification of a Cloud KMS CryptoKey IAM policy to include public members 'allUsers' or 'allAuthenticatedUsers'.
+    Granting access to these groups allows anyone on the internet or any authenticated Google user to interact with the cryptographic key.
+references:
+    - https://docs.cloud.google.com/iam/docs/overview
+    - https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/setIamPolicy
+    - https://attack.mitre.org/matrices/enterprise/cloud/iaas/
+    - https://attack.mitre.org/techniques/T1552/
+    - https://www.trendmicro.com/trendaivisiononecloudriskmanagement/knowledge-base/gcp/CloudKMS/publicly-accessible-kms-cryptokeys.html
+    - https://hub.prowler.com/check/kms_key_not_publicly_accessible
+author: Fernando Alencar @fernandoshadowbr
+date: 2026-05-03
+tags:
+    - attack.initial-access
+    - attack.credential-access
+    - attack.t1552
+logsource:
+    product: gcp
+    service: gcp.audit
+detection:
+    selection_method:
+        gcp.audit.method_name: 'SetIamPolicy'
+    selection_resource:
+        resource.type: 'cloudkms_cryptokey'
+    selection_public:
+        gcp.audit.request.policy.bindings.members:
+            - 'allUsers'
+            - 'allAuthenticatedUsers'
+    condition: all of selection_*
+falsepositives:
+    - Highly unlikely in production. There are virtually no legitimate use cases for making a KMS CryptoKey publicly accessible.
+level: critical
