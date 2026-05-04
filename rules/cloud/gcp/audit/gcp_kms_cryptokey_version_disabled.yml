@@ -1,0 +1,36 @@
+title: Google Cloud KMS CryptoKey Version Disabled
+id: a72b44c1-3e9d-4fcc-9c3c-9ab1110a8889
+related:
+  - id: b8922a33-2e9c-4fcc-9c3c-8ab0000a7778
+    type: derived
+status: experimental
+description: |
+    Detects when a version of a Cloud KMS CryptoKey is transitioned to a 'DISABLED' state. 
+    Disabling a key version prevents it from being used for any cryptographic operations, which can lead to data inaccessibility and Denial of Service (DoS) for dependent applications.
+    This action primarily impacts the Availability of the CIA Triad, as it immediately prevents decryption and encryption operations.
+references:
+    - https://docs.cloud.google.com/kms/docs/enable-disable
+    - https://docs.cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys.cryptoKeyVersions/patch
+    - https://attack.mitre.org/matrices/enterprise/cloud/iaas/
+    - https://attack.mitre.org/techniques/T1685/002/
+    - https://attack.mitre.org/techniques/T1485/
+author: Fernando Alencar @fernandoshadowbr
+date: 2026-05-03
+tags:
+    - attack.impact
+    - attack.defense-impairment
+    - attack.t1485
+    - attack.t1685.002
+logsource:
+    product: gcp
+    service: gcp.audit
+detection:
+    selection_method:
+        gcp.audit.method_name: 'UpdateCryptoKeyVersion'
+    selection_state:
+        gcp.audit.request.crypto_key_version.state: 'DISABLED'
+    condition: all of selection_*
+falsepositives:
+    - Planned key rotation where old versions are disabled after a grace period.
+    - Legitimate decommissioning of keys during project cleanup or application retirement.
+level: high
